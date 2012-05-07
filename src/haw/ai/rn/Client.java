@@ -1,12 +1,12 @@
 package haw.ai.rn;
 
-import static haw.ai.rn.Utils.*;
-
 import java.net.*;
+import java.util.Scanner;
 import java.io.*;
 
 public class Client {
-    private Socket clientSocket;
+    private static final String DELIMITER = "\n";
+	private Socket clientSocket;
     private InetAddress ip;
     private int port;
     
@@ -36,15 +36,28 @@ public class Client {
         }
         
         clientSocket.getOutputStream().write((str+"\n").getBytes());
-        return readLine(clientSocket.getInputStream());
+        return new Scanner(clientSocket.getInputStream()).useDelimiter(DELIMITER).next();
     }
     
-    public static void main(String[] args) throws IOException {
-        Client c = new Client(InetAddress.getByName("localhost"), 1337);
-        c.start();
-        System.out.println("client running");
+    public static void main(String[] args) throws IOException, InterruptedException {
         
-        System.out.println(c.toUpper("hello world"));
-        c.stop();
+        for (int i = 0; i < 10; i++) {
+        	new Thread(new Runnable() {
+				@Override
+				public void run() {
+					Client client;
+					try {
+						client = new Client(InetAddress.getByName("localhost"), 1337);
+			        	client.start();
+			        	System.out.println(client.toUpper("hello world"));
+			        	Thread.sleep(300);
+			        	System.out.println(client.toUpper("hello world"));
+			        	client.stop();
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+				}
+			}).start();
+        }
     }
 }
