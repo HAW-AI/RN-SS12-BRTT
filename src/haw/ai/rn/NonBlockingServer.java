@@ -3,10 +3,13 @@ package haw.ai.rn;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class NonBlockingServer {
 	public static String DELIMITER = "\n";
 	private ServerSocket socket;
+	private ExecutorService threads = Executors.newFixedThreadPool(10);
 	
 	public NonBlockingServer(Integer port) throws IOException {
 		socket = new ServerSocket(port);
@@ -16,7 +19,7 @@ public class NonBlockingServer {
 		Socket current;
 		
 		while((current = socket.accept()) != null) {
-			new Thread(new Connection(current, DELIMITER)).start();
+			threads.execute(new Connection(current, DELIMITER));
 		}
 	}
 	

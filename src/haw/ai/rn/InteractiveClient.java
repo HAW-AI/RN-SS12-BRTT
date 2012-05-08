@@ -55,7 +55,7 @@ public class InteractiveClient {
     
     public static void main(String[] args) throws UnknownHostException {
     	InteractiveClient client;
-		client = new InteractiveClient(InetAddress.getByName("localhost"), 1337);
+		client = new InteractiveClient(InetAddress.getByName("lab30"), 1337);
     	try {
 			client.start();
     	

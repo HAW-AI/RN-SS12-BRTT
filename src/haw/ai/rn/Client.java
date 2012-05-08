@@ -48,17 +48,17 @@ public class Client {
     
     public static void main(String[] args) throws IOException, InterruptedException {
         
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < 11; i++) {
         	new Thread(new Runnable() {
 				@Override
 				public void run() {
 					Client client;
 					try {
-						client = new Client(InetAddress.getByName("localhost"), 1337);
+						client = new Client(InetAddress.getByName("lab30"), 1337);
 			        	client.start();
 			        	System.out.println(client.toUpper("hello world"));
-			        	Thread.sleep(300);
-			        	System.out.println(client.toUpper("hello world"));
+			        	Thread.sleep((long) (Math.random() * 10000));
+			        	System.out.println(client.toUpper("bye world"));
 			        	client.stop();
 					} catch (Exception e) {
 						e.printStackTrace();
