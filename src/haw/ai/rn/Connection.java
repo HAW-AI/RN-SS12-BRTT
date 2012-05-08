@@ -1,5 +1,6 @@
 package haw.ai.rn;
 
+import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.util.Date;
@@ -27,15 +28,28 @@ public class Connection implements Runnable {
 		while (connected) {
 			try {
 				String msg = new Scanner(getSocket().getInputStream()).useDelimiter(delimiter).next();
-				getSocket().getOutputStream().write((msg+delimiter).toUpperCase().getBytes());
+				if (msg.trim().equals("end")) {
+					getSocket().getOutputStream().write(("abort"+delimiter).getBytes());
+					System.out.println(String.format("%s requests end of connection", getSocket().getInetAddress()));
+				}
+				else {
+					getSocket().getOutputStream().write((msg+delimiter).toUpperCase().getBytes());
+				}
 				log();
 			}
 			catch (NoSuchElementException e) {
 				connected = false;
 			}
 			catch (Exception e) {
+				connected = false;
 				e.printStackTrace();
 			}
+		}
+		try {
+			socket.close();
+		} catch (IOException e) {
+			System.out.println(String.format("Can't close connection to %s", socket.getInetAddress()));
+			e.printStackTrace();
 		}
 	}
 

@@ -27,7 +27,15 @@ public class BlockingServer {
 			while (connected) {
 				try {
 					String msg = new Scanner(current.getInputStream()).useDelimiter(DELIMITER).next();
-					current.getOutputStream().write((msg+DELIMITER).toUpperCase().getBytes());
+					if (msg.trim().equals("end")) {
+						current.getOutputStream().write(("abort"+DELIMITER).getBytes());
+						System.out.println(String.format("%s requests end of connection", current.getInetAddress()));
+						current.close();
+						connected = false;
+					}
+					else {
+						current.getOutputStream().write((msg+DELIMITER).toUpperCase().getBytes());
+					}
 					log(current);
 				}
 				catch (Exception e) {

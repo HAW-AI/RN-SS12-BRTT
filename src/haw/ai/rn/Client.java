@@ -21,9 +21,16 @@ public class Client {
         }
     }
     
+    private void send(String msg) throws IOException {
+    	clientSocket.getOutputStream().write((msg+"\n").getBytes());
+    }
+    
     public void stop() throws IOException {
-        clientSocket.close();
-        clientSocket = null;
+        send("end");
+        if (new Scanner(clientSocket.getInputStream()).useDelimiter(DELIMITER).next().trim().equals("abort")) {
+        	clientSocket.close();
+        	clientSocket = null;
+        }
     }
     
     public boolean isRunning() {
@@ -35,7 +42,7 @@ public class Client {
             throw new RuntimeException("Client not running");
         }
         
-        clientSocket.getOutputStream().write((str+"\n").getBytes());
+        send(str);
         return new Scanner(clientSocket.getInputStream()).useDelimiter(DELIMITER).next();
     }
     
