@@ -5,21 +5,20 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadPoolExecutor;
 
 public class NonBlockingServer {
 	public static String DELIMITER = "\n";
 	private ServerSocket socket;
-	private ExecutorService threads = Executors.newFixedThreadPool(10);
+	private ThreadPoolExecutor threads = (ThreadPoolExecutor) Executors.newFixedThreadPool(10);
 	
 	public NonBlockingServer(Integer port) throws IOException {
 		socket = new ServerSocket(port);
 	}
 	
 	public void run() throws IOException {
-		Socket current;
-		
-		while((current = socket.accept()) != null) {
-			threads.execute(new Connection(current, DELIMITER));
+		while (threads.getPoolSize() > threads.getActiveCount()) {
+			threads.execute(new Connection(socket.accept(), DELIMITER));
 		}
 	}
 	
