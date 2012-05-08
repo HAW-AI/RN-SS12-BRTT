@@ -1,6 +1,8 @@
 package haw.ai.rn;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.util.Date;
@@ -27,14 +29,27 @@ public class Connection implements Runnable {
 		boolean connected = true;
 		while (connected) {
 			try {
-				String msg = new Scanner(getSocket().getInputStream()).useDelimiter(delimiter).next();
-				if (msg.trim().equals("end")) {
-					getSocket().getOutputStream().write(("abort"+delimiter).getBytes());
-					System.out.println(String.format("%s requests end of connection", getSocket().getInetAddress()));
-					connected = false;
-				}
-				else {
-					getSocket().getOutputStream().write((msg+delimiter).toUpperCase().getBytes());
+				InputStream is = getSocket().getInputStream();
+				OutputStream os = getSocket().getOutputStream();
+				
+				boolean e,n,d;
+				e = n = d = false;
+				
+				int c;
+				while((c = is.read()) != -1) {
+					if (c == 'e') e = true;
+					if (c == 'n') n = true;
+					if (c == 'd') d = true;
+					if (e && n && d && c == 10) {
+						os.write(("abort"+delimiter).getBytes());
+						System.out.println(String.format("%s requests end of connection", getSocket().getInetAddress()));
+						connected = false;
+						break;
+					}
+					if (c != 'e' && c != 'n' && c != 'd' && c != 10) {
+						e = n = d = false;
+					}
+					os.write(Character.toUpperCase(c));
 				}
 				log();
 			}
@@ -47,6 +62,7 @@ public class Connection implements Runnable {
 			}
 		}
 		try {
+			System.out.println("close connection to " + socket.getInetAddress());
 			socket.close();
 			socket = null;
 		} catch (IOException e) {
