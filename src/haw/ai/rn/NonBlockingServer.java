@@ -15,8 +15,9 @@ public class NonBlockingServer {
 	}
 	
 	public void run() throws IOException {
-		while (threads.getPoolSize() > threads.getActiveCount()) {
-			threads.execute(new Connection(socket.accept(), DELIMITER));
+		while (true) {
+			if (threads.getPoolSize() > threads.getActiveCount())
+				threads.execute(new Connection(socket.accept(), DELIMITER));
 		}
 	}
 	
