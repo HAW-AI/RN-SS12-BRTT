@@ -7,18 +7,23 @@ import java.util.concurrent.ThreadPoolExecutor;
 
 public class NonBlockingServer {
 	public static String DELIMITER = "\n";
-	private ServerSocket socket;
-	private ThreadPoolExecutor threads = (ThreadPoolExecutor) Executors.newFixedThreadPool(10);
+	private final ServerSocket socket;
+	private final ThreadPoolExecutor threads = (ThreadPoolExecutor) Executors.newFixedThreadPool(10);
 	
 	public NonBlockingServer(Integer port) throws IOException {
 		socket = new ServerSocket(port);
 	}
 	
-	public void run() throws IOException {
-		while (true) {
-			if (threads.getPoolSize() > threads.getActiveCount())
-				threads.execute(new Connection(socket.accept(), DELIMITER));
-		}
+	public void run() {
+		try {
+			while (true) {
+				if (threads.getCorePoolSize() > threads.getActiveCount()) {
+					threads.execute(new Connection(socket.accept(), DELIMITER));
+				}
+			}
+		} catch (IOException e) {
+			threads.shutdown();
+		}		
 	}
 	
 	public static void main(String[] args) {
