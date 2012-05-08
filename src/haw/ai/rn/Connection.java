@@ -31,6 +31,7 @@ public class Connection implements Runnable {
 				if (msg.trim().equals("end")) {
 					getSocket().getOutputStream().write(("abort"+delimiter).getBytes());
 					System.out.println(String.format("%s requests end of connection", getSocket().getInetAddress()));
+					connected = false;
 				}
 				else {
 					getSocket().getOutputStream().write((msg+delimiter).toUpperCase().getBytes());
@@ -47,6 +48,7 @@ public class Connection implements Runnable {
 		}
 		try {
 			socket.close();
+			socket = null;
 		} catch (IOException e) {
 			System.out.println(String.format("Can't close connection to %s", socket.getInetAddress()));
 			e.printStackTrace();
